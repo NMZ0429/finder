@@ -1,13 +1,21 @@
+import os
+
 import pandas as pd
 import pytorch_lightning as pl
+from box import Box
 from pytorch_lightning import callbacks
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 from sklearn.model_selection import StratifiedKFold
 
+from data import PetfinderDataModule
+
+from model import Model
+
 config = {
     "seed": 2021,
     "root": "./",
+    "data_path": "petfinder-pawpularity-score",
     "n_splits": 5,
     "epoch": 20,
     "trainer": {
@@ -33,7 +41,8 @@ config = {
         "pin_memory": False,
         "drop_last": False,
     },
-    "model": {"name": "swin_tiny_patch4_window7_224", "output_dim": 1},
+    # "model": {"name": "swin_tiny_patch4_window7_224", "output_dim": 1},
+    "model": {"name": "resnet152d", "output_dim": 1},
     "optimizer": {
         "name": "optim.AdamW",
         "params": {"lr": 1e-5},
@@ -47,11 +56,11 @@ config = {
     },
     "loss": "nn.BCEWithLogitsLoss",
 }
-
-df = pd.read_csv(os.path.join(config.root, "train.csv"))
-df["Id"] = df["Id"].apply(lambda x: os.path.join(config.root, "train", x + ".jpg"))
-
 config = Box(config)
+
+df = pd.read_csv(os.path.join(config.data_path, "train.csv"))
+df["Id"] = df["Id"].apply(lambda x: os.path.join(config.data_path, "train", x + ".jpg"))
+
 
 skf = StratifiedKFold(n_splits=config.n_splits, shuffle=True, random_state=config.seed)
 

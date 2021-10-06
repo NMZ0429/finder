@@ -3,6 +3,8 @@ import torch.nn as nn
 import numpy as np
 import pytorch_lightning as pl
 
+import torch.optim as optim
+
 from timm.models import create_model
 
 from data import get_default_transforms
